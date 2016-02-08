@@ -80,7 +80,7 @@ namespace Microsoft.Maker.Devices.I2C.TMP102
         /// Private helper to initialize the TMP102 device.
         /// </summary>
         /// <remarks>
-        /// Setup and instantiate the I2C device object for the HTU21D.
+        /// Setup and instantiate the I2C device object for the TMP102.
         /// </remarks>
         /// <returns>
         /// Task object.
@@ -99,7 +99,7 @@ namespace Microsoft.Maker.Devices.I2C.TMP102
 
             // Establish an I2C connection to the TMP102
             //
-            // Instantiate the I2cConnectionSettings using the device address of the HTU21D
+            // Instantiate the I2cConnectionSettings using the device address of the TMP102
             // - Set the I2C bus speed of connection to fast mode
             // - Set the I2C sharing mode of the connection to shared
             //
@@ -153,8 +153,13 @@ namespace Microsoft.Maker.Devices.I2C.TMP102
                 this.i2c.Read(i2cTemperatureData);
 
                 // Reconstruct the result using the two bytes returned from the device
+                // 
+                // Byte 1 is T11 T10 T9 T8 T7 T6 T5 T4
+                // Byte 2 is T3  T2  T1 T0 0  0  0  0
+                // Byte 1 left shit gives       0 0 0 0 T11 T10 T9 T8 T7 T6 T5 T4 0  0  0  0
+                // Byte 2 Or assignment gives   0 0 0 0 T11 T10 T9 T8 T7 T6 T5 T4 T3 T2 T1 T0
                 //
-                temperature = (ushort)(i2cTemperatureData[0] << 4);
+                temperature = (ushort)(i2cTemperatureData[0] << 4); 
                 temperature |= (ushort)(i2cTemperatureData[1] >> 4);
 
                 return temperature;
